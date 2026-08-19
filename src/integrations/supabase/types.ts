@@ -14,16 +14,197 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      report_updates: {
+        Row: {
+          author_id: string | null
+          created_at: string
+          id: string
+          is_public: boolean
+          note: string
+          report_id: string
+          status: Database["public"]["Enums"]["report_status"] | null
+        }
+        Insert: {
+          author_id?: string | null
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          note: string
+          report_id: string
+          status?: Database["public"]["Enums"]["report_status"] | null
+        }
+        Update: {
+          author_id?: string | null
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          note?: string
+          report_id?: string
+          status?: Database["public"]["Enums"]["report_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_updates_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
+        Row: {
+          category: Database["public"]["Enums"]["report_category"]
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          details: string
+          evidence_paths: string[]
+          id: string
+          incident_at: string | null
+          is_anonymous: boolean
+          latitude: number | null
+          location_text: string | null
+          longitude: number | null
+          priority: Database["public"]["Enums"]["report_priority"]
+          reference_code: string
+          reporter_id: string | null
+          status: Database["public"]["Enums"]["report_status"]
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["report_category"]
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          details: string
+          evidence_paths?: string[]
+          id?: string
+          incident_at?: string | null
+          is_anonymous?: boolean
+          latitude?: number | null
+          location_text?: string | null
+          longitude?: number | null
+          priority?: Database["public"]["Enums"]["report_priority"]
+          reference_code?: string
+          reporter_id?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["report_category"]
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          details?: string
+          evidence_paths?: string[]
+          id?: string
+          incident_at?: string | null
+          is_anonymous?: boolean
+          latitude?: number | null
+          location_text?: string | null
+          longitude?: number | null
+          priority?: Database["public"]["Enums"]["report_priority"]
+          reference_code?: string
+          reporter_id?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_reference_code: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
+      public_stats: { Args: never; Returns: Json }
+      track_report: {
+        Args: { _reference_code: string }
+        Returns: {
+          category: Database["public"]["Enums"]["report_category"]
+          created_at: string
+          priority: Database["public"]["Enums"]["report_priority"]
+          reference_code: string
+          status: Database["public"]["Enums"]["report_status"]
+          subject: string
+          updated_at: string
+          updates: Json
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "officer"
+      report_category:
+        | "crime"
+        | "corruption"
+        | "public_safety"
+        | "environment"
+        | "infrastructure"
+        | "other"
+      report_priority: "low" | "medium" | "high" | "critical"
+      report_status:
+        | "submitted"
+        | "under_review"
+        | "in_progress"
+        | "resolved"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +331,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "officer"],
+      report_category: [
+        "crime",
+        "corruption",
+        "public_safety",
+        "environment",
+        "infrastructure",
+        "other",
+      ],
+      report_priority: ["low", "medium", "high", "critical"],
+      report_status: [
+        "submitted",
+        "under_review",
+        "in_progress",
+        "resolved",
+        "rejected",
+      ],
+    },
   },
 } as const
