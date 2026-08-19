@@ -91,7 +91,7 @@ export type Database = {
           location_text: string | null
           longitude: number | null
           priority: Database["public"]["Enums"]["report_priority"]
-          reference_code: string
+          reference_code: string | null
           reporter_id: string | null
           status: Database["public"]["Enums"]["report_status"]
           subject: string
@@ -111,7 +111,7 @@ export type Database = {
           location_text?: string | null
           longitude?: number | null
           priority?: Database["public"]["Enums"]["report_priority"]
-          reference_code?: string
+          reference_code?: string | null
           reporter_id?: string | null
           status?: Database["public"]["Enums"]["report_status"]
           subject: string
@@ -131,7 +131,7 @@ export type Database = {
           location_text?: string | null
           longitude?: number | null
           priority?: Database["public"]["Enums"]["report_priority"]
-          reference_code?: string
+          reference_code?: string | null
           reporter_id?: string | null
           status?: Database["public"]["Enums"]["report_status"]
           subject?: string
@@ -165,7 +165,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      generate_reference_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
