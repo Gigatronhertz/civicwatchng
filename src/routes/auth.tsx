@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
+import { DEMO_ACCOUNTS, signIn, useDemoStore } from "@/lib/demo-store";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -32,46 +31,31 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { session } = useDemoStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) void navigate({ to: "/dashboard" });
-    });
-  }, [navigate]);
+    if (session) void navigate({ to: "/dashboard" });
+  }, [session, navigate]);
 
-  const signIn = async (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const user = signIn(email, password);
     setLoading(false);
-    if (error) {
-      toast.error(error.message);
+    if (!user) {
+      toast.error("Those credentials are not recognised.");
       return;
     }
+    toast.success(`Welcome back, ${user.name}.`);
     void navigate({ to: "/dashboard" });
   };
 
-  const signUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
-        data: { full_name: fullName },
-      },
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Account created. Check your email if confirmation is required.");
+  const useDemo = (account: (typeof DEMO_ACCOUNTS)[number]) => {
+    setEmail(account.email);
+    setPassword(account.password);
   };
 
   return (
@@ -91,82 +75,55 @@ function AuthPage() {
 
           <Card className="mt-8 border-border/70 shadow-elevated">
             <CardContent className="pt-6">
-              <Tabs defaultValue="signin">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="signin">Sign in</TabsTrigger>
-                  <TabsTrigger value="signup">Request access</TabsTrigger>
-                </TabsList>
+              <form onSubmit={onSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="si-email">Work email</Label>
+                  <Input
+                    id="si-email"
+                    type="email"
+                    required
+                    autoComplete="username"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="si-pass">Password</Label>
+                  <Input
+                    id="si-pass"
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading && <Loader2 className="size-4 animate-spin" />} Sign in
+                </Button>
+              </form>
 
-                <TabsContent value="signin">
-                  <form onSubmit={signIn} className="mt-5 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="si-email">Work email</Label>
-                      <Input
-                        id="si-email"
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="si-pass">Password</Label>
-                      <Input
-                        id="si-pass"
-                        type="password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading && <Loader2 className="size-4 animate-spin" />} Sign in
-                    </Button>
-                  </form>
-                </TabsContent>
-
-                <TabsContent value="signup">
-                  <form onSubmit={signUp} className="mt-5 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="su-name">Full name</Label>
-                      <Input
-                        id="su-name"
-                        required
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="su-email">Work email</Label>
-                      <Input
-                        id="su-email"
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="su-pass">Password</Label>
-                      <Input
-                        id="su-pass"
-                        type="password"
-                        required
-                        minLength={8}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading && <Loader2 className="size-4 animate-spin" />} Create account
-                    </Button>
-                    <p className="text-xs text-muted-foreground">
-                      New accounts have no dashboard access until an administrator grants an
-                      officer or admin role.
-                    </p>
-                  </form>
-                </TabsContent>
-              </Tabs>
+              <div className="mt-6 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Demo accounts
+                </p>
+                <ul className="mt-3 space-y-2 text-sm">
+                  {DEMO_ACCOUNTS.map((a) => (
+                    <li key={a.email} className="flex items-center justify-between gap-3">
+                      <span>
+                        <span className="font-medium">{a.role === "admin" ? "Admin" : "Officer"}</span>
+                        <br />
+                        <span className="font-mono text-xs text-muted-foreground">
+                          {a.email} / {a.password}
+                        </span>
+                      </span>
+                      <Button type="button" variant="outline" size="sm" onClick={() => useDemo(a)}>
+                        Use
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </CardContent>
           </Card>
         </section>

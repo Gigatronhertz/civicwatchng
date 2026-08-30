@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as TrackRouteImport } from './routes/track'
 
@@ -30,6 +31,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReportRoute = ReportRouteImport.update({
   id: '/report',
   path: '/report',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/dashboard': typeof DashboardRoute
   '/report': typeof ReportRoute
   '/track': typeof TrackRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/dashboard': typeof DashboardRoute
   '/report': typeof ReportRoute
   '/track': typeof TrackRoute
 }
@@ -60,21 +68,24 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/dashboard': typeof DashboardRoute
   '/report': typeof ReportRoute
   '/track': typeof TrackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/auth' | '/report' | '/track'
+  fullPaths: '/' | '/about' | '/auth' | '/dashboard' | '/report' | '/track'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/auth' | '/report' | '/track'
-  id: '__root__' | '/' | '/about' | '/auth' | '/report' | '/track'
+  to: '/' | '/about' | '/auth' | '/dashboard' | '/report' | '/track'
+  id:
+    '__root__' | '/' | '/about' | '/auth' | '/dashboard' | '/report' | '/track'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
+  DashboardRoute: typeof DashboardRoute
   ReportRoute: typeof ReportRoute
   TrackRoute: typeof TrackRoute
 }
@@ -102,6 +113,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/report': {
       id: '/report'
       path: '/report'
@@ -123,6 +141,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
+  DashboardRoute: DashboardRoute,
   ReportRoute: ReportRoute,
   TrackRoute: TrackRoute,
 }
